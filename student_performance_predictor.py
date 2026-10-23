@@ -1,4 +1,3 @@
-
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
@@ -12,7 +11,7 @@ data = {
 
 df = pd.DataFrame(data)
 
-# Select input features and target
+# Prepare the training data
 X = df[["Study_Hours", "Attendance"]]
 y = df["Marks"]
 
@@ -20,23 +19,47 @@ y = df["Marks"]
 model = LinearRegression()
 model.fit(X, y)
 
-# Get input from the user
+# Get user input
 print("STUDENT PERFORMANCE PREDICTOR")
 print("-----------------------------")
 
 study_hours = float(input("Enter daily study hours: "))
 attendance = float(input("Enter attendance percentage: "))
 
-# Predict marks
-prediction = model.predict([[study_hours, attendance]])
+# Validate input
+if not 0 <= study_hours <= 24:
+    print("Please enter study hours between 0 and 24.")
+elif not 0 <= attendance <= 100:
+    print("Please enter attendance between 0 and 100.")
+else:
+    # Predict marks
+    prediction = model.predict(
+        pd.DataFrame(
+            [[study_hours, attendance]],
+            columns=["Study_Hours", "Attendance"]
+        )
+    )[0]
 
-print(f"\nPredicted Marks: {prediction[0]:.2f} out of 100")
+    # Keep predicted marks within 0–100
+    marks = max(0, min(100, prediction))
 
-# Plot student data
-plt.scatter(df["Study_Hours"], df["Marks"])
-plt.xlabel("Daily Study Hours")
-plt.ylabel("Marks")
-plt.title("Study Hours vs Student Marks")
-plt.grid(True)
-plt.show()
+    print(f"\nPredicted Marks: {marks:.2f} out of 100")
+
+    # Display performance category
+    if marks >= 80:
+        print("Performance: Excellent")
+    elif marks >= 60:
+        print("Performance: Good")
+    elif marks >= 40:
+        print("Performance: Average")
+    else:
+        print("Performance: Needs Improvement")
+
+    # Plot study hours versus marks
+    plt.scatter(df["Study_Hours"], df["Marks"])
+    plt.xlabel("Daily Study Hours")
+    plt.ylabel("Marks")
+    plt.title("Study Hours vs Student Marks")
+    plt.grid(True)
+    plt.show()
 
